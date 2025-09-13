@@ -49,5 +49,9 @@ class DatabaseSeeder extends Seeder
         }
 
         User::factory(200)->create();
+        $this->call(CategorySeeder::class);
+        $this->call(MaterialSeeder::class);
+        $this->call(ProductSeeder::class);
+        $this->call(ProductMaterialSeeder::class);
     }
 }

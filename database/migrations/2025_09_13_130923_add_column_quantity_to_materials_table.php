@@ -10,10 +10,8 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('product_materials', function (Blueprint $table) {
-            $table->id();
-            $table->float('quantity');
-            $table->timestamps();
+        Schema::table('materials', function (Blueprint $table) {
+            $table->float('stock')->default(0);
         });
     }
 
@@ -22,6 +20,8 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('product_materials');
+        Schema::table('materials', function (Blueprint $table) {
+            //
+        });
     }
 };

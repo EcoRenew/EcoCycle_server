@@ -7,9 +7,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Product extends Model
 {
-    public function materials(): BelongsToMany
+    protected $fillable = ['name', 'description', 'img', 'hover_img'];
+    public function materials()
     {
-        return $this->belongsToMany(Material::class, 'product_materials')
-            ->withPivot('quantity');
+        return $this->belongsToMany(Material::class, 'product_materials', 'product_id', 'material_id')
+            ->withPivot('quantity')
+            ->withTimestamps();
     }
+
 }
