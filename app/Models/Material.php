@@ -33,10 +33,11 @@ class Material extends Model
         return $this->belongsTo(Category::class, 'category_id', 'category_id');
     }
 
-    public function products(): BelongsToMany
+    public function products()
     {
-        return $this->belongsToMany(Product::class, 'product_materials')
-            ->withPivot('quantity');
+        return $this->belongsToMany(Product::class, 'product_materials', 'material_id', 'product_id')
+            ->withPivot('quantity')
+            ->withTimestamps();
     }
 
     /**
