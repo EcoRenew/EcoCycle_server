@@ -42,8 +42,9 @@ class StripeController extends Controller
             $session = $this->stripe->checkout->sessions->create([
                 'line_items' => $lineItems,
                 'mode' => 'payment',
-                'success_url' => config('stripe.success_url'),
-                'cancel_url' => config('stripe.cancel_url'),
+                'metadata' => [
+                    'user_id' => auth()->id(),
+                ],
             ]);
             return response()->json([
                 'id' => $session->id,
