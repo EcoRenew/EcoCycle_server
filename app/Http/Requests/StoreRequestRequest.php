@@ -7,7 +7,7 @@ use Carbon\Carbon;
 use App\Models\Material;
 use App\Models\Address;
 
-class StoreRequest extends FormRequest
+class StoreRequestRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
