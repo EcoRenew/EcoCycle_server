@@ -28,9 +28,16 @@ Route::post('users/logout', [AuthController::class, 'logout'])
 Route::post('/products/{product}/produce', [ProductController::class, 'produce']);
 Route::apiResource('products', ProductController::class);
 
-Route::post('stripe/webhook', [StripeWebHook::class, 'handleWebHook']);
-Route::post('/products/pay', [StripeController::class, 'pay']);
 
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/cart', [CartController::class, 'index']);
+    Route::post('/cart', [CartController::class, 'store']);
+    Route::put('/cart/{id}', [CartController::class, 'update']);
+    Route::delete('/cart/{id}', [CartController::class, 'destroy']);
+    Route::delete('/cart', [CartController::class, 'clear']);
+    Route::post('/products/pay', [StripeController::class, 'pay']);
+
+});
 // Materials
 Route::get('/materials', [RequestController::class, 'getMaterials']);
 
@@ -38,7 +45,6 @@ Route::get('/materials', [RequestController::class, 'getMaterials']);
 Route::middleware(['auth:sanctum', 'role:user'])->group(function () {
     Route::apiResource('requests', RequestController::class)->only(['store', 'show']);
     Route::get('user/requests', [RequestController::class, 'getUserRequests']);
-});
 
 // Requests (Admin)
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
