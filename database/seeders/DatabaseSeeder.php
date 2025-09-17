@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -18,25 +19,25 @@ class DatabaseSeeder extends Seeder
                 "name" => "karim",
                 "email" => "karim.nasser@echocycle.com",
                 "role" => "admin",
-                "password" => "password"
+                "password" => Hash::make('password')
             ],
             [
                 "name" => "abdulrahman",
                 "email" => "abdulrahman.khawaga@echocycle.com",
                 "role" => "admin",
-                "password" => "password"
+                "password" => Hash::make('password')
             ],
             [
                 "name" => "nariman",
                 "email" => "nariman.awany@echocycle.com",
                 "role" => "admin",
-                "password" => "password"
+                "password" => Hash::make('password')
             ],
             [
                 "name" => "mariam",
                 "email" => "mariam.alsaeed@echocycle.com",
                 "role" => "admin",
-                "password" => "password"
+                "password" => Hash::make('password')
             ]
         ];
         foreach ($adminsUsers as $adminUser) {
@@ -53,5 +54,6 @@ class DatabaseSeeder extends Seeder
         $this->call(MaterialSeeder::class);
         $this->call(ProductSeeder::class);
         $this->call(ProductMaterialSeeder::class);
+        $this->call(TestRecyclingDataSeeder::class);
     }
 }

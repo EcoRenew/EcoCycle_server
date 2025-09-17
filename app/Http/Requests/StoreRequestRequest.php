@@ -130,7 +130,7 @@ class StoreRequest extends FormRequest
             'materials.*.material_id.exists' => 'One or more selected materials do not exist.',
             'materials.*.quantity.required' => 'Please specify the quantity for each material.',
             'materials.*.quantity.numeric' => 'Quantity must be a valid number.',
-            
+
 
             // Optional fields validation messages
             'notes.string' => 'Notes must be text.',
