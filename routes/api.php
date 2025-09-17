@@ -23,8 +23,6 @@ Route::post('users/logout', [AuthController::class, 'logout'])
 Route::post('/products/{product}/produce', [ProductController::class, 'produce']);
 Route::apiResource('products', ProductController::class);
 
-Route::post('stripe/webhook', [StripeWebHook::class, 'handleWebHook']);
-Route::post('/products/pay', [StripeController::class, 'pay']);
 
 
 
@@ -34,6 +32,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/cart/{id}', [CartController::class, 'update']);
     Route::delete('/cart/{id}', [CartController::class, 'destroy']);
     Route::delete('/cart', [CartController::class, 'clear']);
+    Route::post('/products/pay', [StripeController::class, 'pay']);
 });
 
 Route::post('/ai/diy-helper', [AIController::class, 'generateDIY']);
