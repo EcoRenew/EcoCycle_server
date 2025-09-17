@@ -33,7 +33,7 @@ class StoreRequestRequest extends FormRequest
                 'after_or_equal:today',
                 'before_or_equal:' . now()->addMonths(3)->format('Y-m-d'),
                 function ($attribute, $value, $fail) {
-                    // Check if pickup date is not on weekends 
+                    // Check if pickup date is not on weekends
                     $date = Carbon::parse($value);
                     if ($date->dayOfWeek === Carbon::FRIDAY) {
                         $fail('Pickup cannot be scheduled on Fridays.');
@@ -45,9 +45,9 @@ class StoreRequestRequest extends FormRequest
                     }
 
                     // Check if pickup date is at least 48 hours in advance
-                    if ($date->diffInHours(now()) < 48) {
-                        $fail('Pickup must be scheduled at least 24 hours in advance.');
-                    }
+                    // if ($date->diffInHours(now()) < 48) {
+                    //     $fail('Pickup must be scheduled at least 48 hours in advance.');
+                    // }
                 }
             ],
             'materials' => 'required|array|min:1',
