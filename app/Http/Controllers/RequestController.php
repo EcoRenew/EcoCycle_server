@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use PDF;
-use App\Http\Requests\StoreRequest;
+use App\Http\Requests\StoreRequestRequest;
 
 class RequestController extends Controller
 {
@@ -50,7 +50,7 @@ class RequestController extends Controller
     /**
      * Store a newly created request in storage.
      */
-    public function store(StoreRequest $request)
+    public function store(StoreRequestRequest $request)
     {
         try {
             DB::beginTransaction();
@@ -61,8 +61,7 @@ class RequestController extends Controller
             $recyclingRequest->pickup_address_id = $request->pickup_address_id;
             $recyclingRequest->customer_id = Auth::id();
             $recyclingRequest->status = 'Pending';
-            $recyclingRequest->notes = $request->notes;
-            $recyclingRequest->contact_phone = $request->contact_phone;
+            // $recyclingRequest->phone = $request->contact_phone;
             $recyclingRequest->save();
 
             $totalValue = 0;

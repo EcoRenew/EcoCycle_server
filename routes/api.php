@@ -10,7 +10,7 @@ use App\Http\Controllers\StripeWebHook;
 use App\Http\Controllers\AIController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\AddressController;
 // Include admin routes
 require __DIR__ . '/api_admin.php';
 
@@ -36,10 +36,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/cart/{id}', [CartController::class, 'destroy']);
     Route::delete('/cart', [CartController::class, 'clear']);
     Route::post('/products/pay', [StripeController::class, 'pay']);
-
 });
 // Materials
 Route::get('/materials', [RequestController::class, 'getMaterials']);
+
+// User addresses (authenticated)
+Route::middleware(['auth:sanctum', 'role:user'])->group(function () {
+    Route::get('/addresses', [AddressController::class, 'index']);
+    Route::post('/addresses', [AddressController::class, 'store']);
+});
 
 // Requests (User)
 Route::middleware(['auth:sanctum', 'role:user'])->group(function () {
@@ -58,4 +63,3 @@ Route::middleware(['auth:sanctum', 'role:collector'])->group(function () {
     Route::get('collector/assignments', [RequestController::class, 'getCollectorAssignments']);
     Route::post('collector/requests/{id}/status', [RequestController::class, 'updateStatus']);
 });
-
