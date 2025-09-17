@@ -45,6 +45,7 @@ Route::get('/materials', [RequestController::class, 'getMaterials']);
 Route::middleware(['auth:sanctum', 'role:user'])->group(function () {
     Route::apiResource('requests', RequestController::class)->only(['store', 'show']);
     Route::get('user/requests', [RequestController::class, 'getUserRequests']);
+});
 
 // Requests (Admin)
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
@@ -57,3 +58,4 @@ Route::middleware(['auth:sanctum', 'role:collector'])->group(function () {
     Route::get('collector/assignments', [RequestController::class, 'getCollectorAssignments']);
     Route::post('collector/requests/{id}/status', [RequestController::class, 'updateStatus']);
 });
+
