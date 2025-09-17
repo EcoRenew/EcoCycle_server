@@ -5,6 +5,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StripeController;
 use App\Http\Controllers\StripeWebHook;
+use App\Http\Controllers\AIController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -26,6 +27,7 @@ Route::post('stripe/webhook', [StripeWebHook::class, 'handleWebHook']);
 Route::post('/products/pay', [StripeController::class, 'pay']);
 
 
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/cart', [CartController::class, 'index']);
     Route::post('/cart', [CartController::class, 'store']);
@@ -33,5 +35,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/cart/{id}', [CartController::class, 'destroy']);
     Route::delete('/cart', [CartController::class, 'clear']);
 });
+
+Route::post('/ai/diy-helper', [AIController::class, 'generateDIY']);
+
 
 
