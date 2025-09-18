@@ -21,15 +21,17 @@ Route::post('/admin/login', [App\Http\Controllers\Admin\AuthController::class, '
 
 // User Management Routes
 Route::prefix('admin')->middleware(['auth:sanctum'])->group(function () {
+    // Authenticated admin info endpoint
+    Route::get('me', [App\Http\Controllers\Admin\AuthController::class, 'me']);
     // User routes
     Route::apiResource('users', UserController::class);
-    
+
     // Product routes
     Route::apiResource('products', ProductController::class);
-    
+
     // Material routes
     Route::apiResource('materials', MaterialController::class);
-    
+
     // Category routes
     Route::apiResource('categories', CategoryController::class);
 
