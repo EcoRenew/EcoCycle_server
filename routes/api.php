@@ -4,7 +4,6 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StripeController;
-use App\Http\Controllers\StripeWebHook;
 use App\Http\Controllers\AIController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
@@ -49,6 +48,3 @@ Route::middleware(['auth:sanctum',EnsureEmailIsVerified::class])->group(function
 });
 
 Route::post('/ai/diy-helper', [AIController::class, 'generateDIY']);
-
-
-
