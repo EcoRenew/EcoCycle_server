@@ -7,6 +7,7 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
+use Illuminate\Auth\Events\Registered;
 
 class AuthController extends Controller
 {
@@ -14,8 +15,9 @@ class AuthController extends Controller
     {
         $attrs = $request->validated();
         $user = User::create($attrs);
+        event(new Registered($user));
         return response()->json([
-            "message" => "User registered successfully.",
+            "message" => "User registered successfully. Please check your email to verify your account.",
             "user" => new UserResource($user),
         ], 201);
     }
@@ -29,11 +31,19 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
         if (!$user || !Hash::check($request->password, $user->password)) {
-            return [
-                'message' => "the provided credentials are incorrect"
-            ];
+            return response()->json([
+                'success' => false,
+                'message' => "The provided credentials are incorrect."
+            ], 401);
         }
-        $token = $user->createToken($user->name);
+        if (!$user->hasVerifiedEmail()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Your email is not verified.',
+                'email_not_verified' => true
+            ], 403);
+        }
+        $token = $user->createToken($user->name);   
         return response()->json([
             "message" => "User logged in successfully.",
             "user" => new UserResource($user),
