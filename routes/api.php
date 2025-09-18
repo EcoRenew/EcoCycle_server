@@ -24,6 +24,10 @@ Route::post('users/login', [AuthController::class, 'login']);
 Route::post('users/logout', [AuthController::class, 'logout'])
     ->middleware('auth:sanctum');
 
+// User profile endpoint
+Route::get('users/me', [AuthController::class, 'me'])
+    ->middleware('auth:sanctum');
+
 
 Route::post('/products/{product}/produce', [ProductController::class, 'produce']);
 Route::apiResource('products', ProductController::class);
@@ -44,6 +48,9 @@ Route::get('/materials', [RequestController::class, 'getMaterials']);
 Route::middleware(['auth:sanctum', 'role:user'])->group(function () {
     Route::get('/addresses', [AddressController::class, 'index']);
     Route::post('/addresses', [AddressController::class, 'store']);
+    // Phone numbers for the authenticated user
+    Route::get('/phone-numbers', [\App\Http\Controllers\PhoneNumberController::class, 'index']);
+    Route::post('/phone-numbers', [\App\Http\Controllers\PhoneNumberController::class, 'store']);
 });
 
 // Requests (User)
