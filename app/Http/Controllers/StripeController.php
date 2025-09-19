@@ -47,7 +47,7 @@ class StripeController extends Controller
                 'line_items' => $lineItems,
                 'mode' => 'payment',
                 'customer_email' => $user->email,
-                'success_url' => config('stripe.frontend_url') . '/?success=true',
+                'success_url' => config('stripe.frontend_url') . '/payment-success?session_id={CHECKOUT_SESSION_ID}',
                 'cancel_url' => config('stripe.frontend_url') . '/?canceled=true',
                 'metadata' => [
                     'user_id' => auth()->id(),
