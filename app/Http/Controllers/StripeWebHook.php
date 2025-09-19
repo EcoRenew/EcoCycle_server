@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\OrderPaid;
 use App\Models\Order;
-use App\Models\Product;
 use Illuminate\Http\Request;
 use Stripe\Exception\SignatureVerificationException;
-use Stripe\StripeClient;
 use Stripe\Webhook;
+use Illuminate\Support\Facades\Mail;
 
 class StripeWebHook extends Controller
 {
@@ -29,12 +29,14 @@ class StripeWebHook extends Controller
         switch ($event->type) {
             case 'checkout.session.completed':
                 $session = $event->data->object;
-                Order::create([
+                $order = Order::create([
                     'stripe_session_id' => $session->id,
                     'user_id' => $session->metadata['user_id'],
                     'amount' => $session->amount_total,
                     'status' => 'paid',
                 ]);
+                $user = $order->user;
+                Mail::to($user->email)->send(new OrderPaid($order));
                 break;
         }
         return response('Webhook received.', 200);

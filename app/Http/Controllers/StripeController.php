@@ -39,9 +39,14 @@ class StripeController extends Controller
             ];
         }
         try {
+            $user = auth()->user();
+            if (!$user) {
+                return response()->json(['error' => 'User not authenticated'], 401);
+            }
             $session = $this->stripe->checkout->sessions->create([
                 'line_items' => $lineItems,
                 'mode' => 'payment',
+                'customer_email' => $user->email,
                 'success_url' => config('stripe.frontend_url') . '/?success=true',
                 'cancel_url' => config('stripe.frontend_url') . '/?canceled=true',
                 'metadata' => [
