@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->id('user_id');
             $table->string('name');
             $table->string('email')->unique();
-            $table->string('phone')->nullable();
+            // $table->string('phone')->nullable();
             $table->string('password');
             $table->enum('role', ['user', 'factory', 'collector', 'admin'])->default('user');
             $table->unsignedBigInteger('default_address_id')->nullable();

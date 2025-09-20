@@ -11,8 +11,10 @@ use App\Http\Controllers\AIController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\PhoneController;
 // Include admin routes
 require __DIR__ . '/api_admin.php';
+
 use App\Http\Middleware\EnsureEmailIsVerified;
 use Illuminate\Auth\Events\Verified;
 
@@ -21,7 +23,7 @@ Route::get('/email/verify/{id}/{hash}', function ($id, $hash) {
     $user = User::findOrFail($id);
 
     if (!hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
-        return redirect(env('FRONTEND_URL') . '/register'); 
+        return redirect(env('FRONTEND_URL') . '/register');
     }
 
     if (!$user->hasVerifiedEmail()) {
@@ -29,7 +31,6 @@ Route::get('/email/verify/{id}/{hash}', function ($id, $hash) {
         event(new Verified($user));
     }
     return redirect(env('FRONTEND_URL') . '/login');
-
 })->middleware('signed')->name('verification.verify');
 
 Route::post('users/register', [AuthController::class, 'register']);
@@ -49,7 +50,7 @@ Route::apiResource('products', ProductController::class);
 
 
 
-Route::middleware(['auth:sanctum',EnsureEmailIsVerified::class])->group(function () {
+Route::middleware(['auth:sanctum', EnsureEmailIsVerified::class])->group(function () {
     Route::get('/cart', [CartController::class, 'index']);
     Route::post('/cart', [CartController::class, 'store']);
     Route::put('/cart/{id}', [CartController::class, 'update']);
@@ -67,6 +68,12 @@ Route::middleware(['auth:sanctum', 'role:user'])->group(function () {
     // Phone numbers for the authenticated user
     Route::get('/phone-numbers', [\App\Http\Controllers\PhoneNumberController::class, 'index']);
     Route::post('/phone-numbers', [\App\Http\Controllers\PhoneNumberController::class, 'store']);
+});
+
+// Phones (authenticated)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/phones', [PhoneController::class, 'index']);
+    Route::post('/phones', [PhoneController::class, 'store']);
 });
 
 // Requests (User)
@@ -91,3 +98,6 @@ Route::post('/ai/diy-helper', [AIController::class, 'generateDIY']);
 //Requests(google)
 Route::get('/auth/google/redirect', [GoogleAuthController::class, 'redirect'])->name('auth.google.redirect');
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->name('auth.google.callback');
+
+// Categories 
+Route::get('/categories', [RequestController::class, 'getCategories']);

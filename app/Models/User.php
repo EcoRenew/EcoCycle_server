@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Phone;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -26,7 +27,7 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $fillable = [
         'name',
         'email',
-        'phone',
+        'phone', 
         'password',
         'role',
         'default_address_id',
@@ -89,5 +90,31 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function orders(): HasMany {
         return $this->hasMany(Order::class);
+    }
+
+    // Add phones relationship
+    public function phones(): HasMany
+    {
+        return $this->hasMany(Phone::class, 'user_id', 'user_id');
+    }
+
+    /**
+     * Convenience accessor: primary_phone returns first phone record or fallback to users.phone string.
+     */
+    public function getPrimaryPhoneAttribute()
+    {
+        $phone = $this->phones()->where('is_primary', true)->first();
+        if ($phone) {
+            return $phone->phone;
+        }
+
+        // fallback to first phone if none marked primary
+        $first = $this->phones()->orderByDesc('created_at')->first();
+        if ($first) {
+            return $first->phone;
+        }
+
+        // fallback to legacy phone column
+        return $this->attributes['phone'] ?? null;
     }
 }

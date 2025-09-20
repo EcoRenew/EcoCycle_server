@@ -20,7 +20,7 @@ class TestRecyclingDataSeeder extends Seeder
             [
                 'name' => 'Request User',
                 'password' => Hash::make('password'),
-                'phone' => '01000000000',
+                // 'phone' => '01000000000',
                 'role' => 'user',
             ]
         );
@@ -39,26 +39,32 @@ class TestRecyclingDataSeeder extends Seeder
             ]);
         }
 
+        $imageUrl = 'https://portal.bekia-egypt.com/storage/items/xVaMZGC47cbLREMB3HzpPy9nbo6rkCttgUJ1PaMq.png';
+
         // Ensure material with ID 1 exists and is Cotton
         $material = Material::find(1);
         if (!$material) {
-            // Create with explicit ID = 1
+            // Create with explicit ID = 1 using DB to set material_id
             DB::table('materials')->insert([
-                'material_id' => 1,
-                'material_name' => 'Cotton',
+                'material_id'    => 1,
+                'material_name'  => 'Cotton',
                 'price_per_unit' => 10.00,
-                'unit' => 'kg',
-                'category_id' => $category->category_id,
-                'created_at' => now(),
-                'updated_at' => now(),
+                'default_unit'   => 'kg',
+                'units'          => json_encode(['kg']),
+                'image_url'      => $imageUrl,
+                'category_id'    => $category->category_id,
+                'created_at'     => now(),
+                'updated_at'     => now(),
             ]);
             $material = Material::find(1);
         } else {
             $material->update([
-                'material_name' => 'Cotton',
+                'material_name'  => 'Cotton',
                 'price_per_unit' => 10.00,
-                'unit' => 'kg',
-                'category_id' => $category->category_id,
+                'default_unit'   => 'kg',
+                'units'          => ['kg'],
+                'image_url'      => $imageUrl,
+                'category_id'    => $category->category_id,
             ]);
         }
 
@@ -68,6 +74,3 @@ class TestRecyclingDataSeeder extends Seeder
         $this->command?->info('Cotton material_id: ' . $material->material_id);
     }
 }
-
-
-
