@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RequestController;
 use App\Http\Controllers\StripeController;
@@ -86,3 +87,7 @@ Route::middleware(['auth:sanctum', 'role:collector'])->group(function () {
     Route::post('collector/requests/{id}/status', [RequestController::class, 'updateStatus']);
 });
 Route::post('/ai/diy-helper', [AIController::class, 'generateDIY']);
+
+//Requests(google)
+Route::get('/auth/google/redirect', [GoogleAuthController::class, 'redirect'])->name('auth.google.redirect');
+Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->name('auth.google.callback');
