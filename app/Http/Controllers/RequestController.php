@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Request as RecyclingRequest;
 use App\Models\RequestItem;
 use App\Models\Material;
@@ -219,15 +220,58 @@ class RequestController extends Controller
     }
 
     /**
-     * Get all available materials with their units and prices.
+     * Public: return materials for frontend
      */
-    public function getMaterials()
+    public function getMaterials(Request $request)
     {
-        $materials = Material::with('category')->get();
+        $materials = Material::with('category')->get()->map(function ($m) {
+            return [
+                'material_id'    => $m->material_id,
+                'material_name'  => $m->material_name,
+                'description'    => $m->description,
+                'price_per_unit' => (float) $m->price_per_unit,
+                'default_unit'   => $m->default_unit,
+                'units'          => $m->units ?? [],
+                'image_url'      => $m->image_url,
+                'category_id'    => $m->category_id,
+                'category'       => $m->category ? [
+                    'category_id'   => $m->category->category_id,
+                    'category_name' => $m->category->category_name,
+                    'slug'          => $m->category->slug,
+                    'image_url'     => $m->category->image_url,
+                ] : null,
+            ];
+        });
 
-        return response()->json([
-            'success' => true,
-            'data' => $materials
-        ]);
+        return response()->json(['data' => $materials]);
+    }
+
+    /**
+     * Public: return categories with nested materials (UI-friendly shape)
+     */
+    public function getCategories(Request $request)
+    {
+        $categories = Category::with('materials')->get()->map(function ($c) {
+            return [
+                'category_id'   => $c->category_id,
+                'category_name' => $c->category_name,
+                'slug'          => $c->slug,
+                'image_url'     => $c->image_url,
+                'materials'     => $c->materials->map(function ($m) {
+                    return [
+                        'material_id'    => $m->material_id,
+                        'material_name'  => $m->material_name,
+                        'description'    => $m->description,
+                        'price_per_unit' => (float) $m->price_per_unit,
+                        'default_unit'   => $m->default_unit,
+                        'units'          => $m->units ?? [],
+                        'image_url'      => $m->image_url,
+                        'category_id'    => $m->category_id,
+                    ];
+                }),
+            ];
+        });
+
+        return response()->json(['data' => $categories]);
     }
 }

@@ -1,7 +1,9 @@
 <?php
 
 namespace Database\Seeders;
+
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -12,13 +14,19 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
-        $categories = ['Fabric', 'Accessories', 'Rubber', ];
+        $imageUrl = 'https://portal.bekia-egypt.com/storage/items/xVaMZGC47cbLREMB3HzpPy9nbo6rkCttgUJ1PaMq.png';
+
+        $categories = ['Fabric', 'Accessories', 'Rubber'];
+
+        $now = now();
 
         foreach ($categories as $cate) {
             DB::table('categories')->insert([
                 'category_name' => $cate,
-                'created_at' => now(),
-                'updated_at' => now(),
+                'slug' => Str::slug($cate),
+                'image_url' => $imageUrl,
+                'created_at' => $now,
+                'updated_at' => $now,
             ]);
         }
     }

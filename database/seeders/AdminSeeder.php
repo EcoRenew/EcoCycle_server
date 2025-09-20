@@ -18,7 +18,7 @@ class AdminSeeder extends Seeder
             'email' => 'admin@ecocycle.com',
             'password' => Hash::make('admin123'),
             'role' => 'admin',
-            'phone' => '1234567890',
+            // 'phone' => '1234567890',
         ]);
     }
 }
