@@ -117,4 +117,15 @@ class User extends Authenticatable implements MustVerifyEmail
         // fallback to legacy phone column
         return $this->attributes['phone'] ?? null;
     }
+
+    // Ensure recycling_points is null for admin/collector and 0 for normal users when absent
+    public function getRecyclingPointsAttribute($value)
+    {
+        if (in_array($this->role, ['admin', 'collector'])) {
+            return null;
+        }
+
+        // For regular users/factory return stored value or 0 default
+        return is_null($value) ? 0 : (int) $value;
+    }
 }

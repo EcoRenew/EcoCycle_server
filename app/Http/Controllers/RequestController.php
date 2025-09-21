@@ -274,4 +274,88 @@ class RequestController extends Controller
 
         return response()->json(['data' => $categories]);
     }
+
+    /**
+     * Get dashboard stats for the authenticated user.
+     *
+     * Returns:
+     *  - total_recycled_items (sum of quantities for completed recycling requests)
+     *  - total_donation_requests (count)
+     *  - total_items_donated (sum of quantities for donation requests)
+     *  - total_price_donated (sum of calculated_price for donation requests)
+     *  - upcoming_pickups (next 5 pending/assigned pickups with items)
+     *  - recycling-points
+     */
+    public function getUserDashboard()
+    {
+        $userId = Auth::id();
+
+        // read recycling points 
+        $user = Auth::user();
+        $recyclingPoints = $user->recycling_points; // accessor is applied
+
+        // Total recycled items (only completed recycling requests)
+        $totalRecycledItems = DB::table('request_items')
+            ->join('requests', 'request_items.request_id', '=', 'requests.request_id')
+            ->where('requests.customer_id', $userId)
+            ->where('requests.request_type', 'Recycling')
+            ->where('requests.status', 'Completed')
+            ->sum('request_items.quantity');
+
+        // Total donation requests count
+        $totalDonationRequests = RecyclingRequest::where('customer_id', $userId)
+            ->where('request_type', 'Donation')
+            ->count();
+
+        // Total items donated (all donation requests)
+        $totalItemsDonated = DB::table('request_items')
+            ->join('requests', 'request_items.request_id', '=', 'requests.request_id')
+            ->where('requests.customer_id', $userId)
+            ->where('requests.request_type', 'Donation')
+            ->sum('request_items.quantity');
+
+        // Total money value for donated items (sum of calculated_price for donation requests)
+        $totalPriceDonated = DB::table('request_items')
+            ->join('requests', 'request_items.request_id', '=', 'requests.request_id')
+            ->where('requests.customer_id', $userId)
+            ->where('requests.request_type', 'Donation')
+            ->sum('request_items.calculated_price');
+
+        // Upcoming pickups (next 5 pending or assigned)
+        $upcomingPickups = RecyclingRequest::with(['pickupAddress', 'requestItems.material'])
+            ->where('customer_id', $userId)
+            ->whereIn('status', ['Pending', 'Assigned'])
+            ->where('pickup_date', '>=', now())
+            ->orderBy('pickup_date', 'asc')
+            ->take(5)
+            ->get()
+            ->map(function ($r) {
+                return [
+                    'request_id' => $r->request_id,
+                    'request_type' => $r->request_type,
+                    'status' => $r->status,
+                    'pickup_date' => $r->pickup_date,
+                    'pickup_address' => $r->pickupAddress ? ($r->pickupAddress->full_address ?? ($r->pickupAddress->street ?? null)) : null,
+                    'items' => $r->requestItems->map(function ($it) {
+                        return [
+                            'material_name' => $it->material->material_name ?? ($it->material->name ?? null),
+                            'quantity' => $it->quantity,
+                            'calculated_price' => $it->calculated_price,
+                        ];
+                    })->values(),
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'recycling_points' => $recyclingPoints,
+                'total_recycled_items' => (int) $totalRecycledItems,
+                'total_donation_requests' => (int) $totalDonationRequests,
+                'total_items_donated' => (int) $totalItemsDonated,
+                'total_price_donated' => (float) $totalPriceDonated,
+                'upcoming_pickups' => $upcomingPickups,
+            ],
+        ]);
+    }
 }
