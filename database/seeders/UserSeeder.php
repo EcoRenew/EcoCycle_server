@@ -3,8 +3,10 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\Phone;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class UserSeeder extends Seeder
 {
@@ -13,65 +15,52 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create admin user
-        User::create([
-            'name' => 'Admin User',
-            'email' => 'admin@ecocycle.com',
-            'password' => Hash::make('password'),
-            // 'phone' => '1234567890',
-            'role' => 'admin',
-            'status' => 'active',
-        ]);
-
-        // Create collector users
-        User::create([
+        // Collector One
+        $collector1 = User::create([
             'name' => 'Collector One',
             'email' => 'collector1@ecocycle.com',
             'password' => Hash::make('password'),
-            'phone' => '2345678901',
             'role' => 'collector',
-            'status' => 'active',
+            // 'status' => 'active',
+            'email_verified_at' => now(),
+            'remember_token' => Str::random(10),
+        ]);
+        Phone::create([
+            'user_id' => $collector1->user_id,
+            'phone' => '2345678901',
+            'is_primary' => true,
         ]);
 
-        User::create([
+        // Collector Two
+        $collector2 = User::create([
             'name' => 'Collector Two',
             'email' => 'collector2@ecocycle.com',
             'password' => Hash::make('password'),
-            'phone' => '3456789012',
             'role' => 'collector',
-            'status' => 'active',
+            // 'status' => 'active',
+            'email_verified_at' => now(),
+            'remember_token' => Str::random(10),
+        ]);
+        Phone::create([
+            'user_id' => $collector2->user_id,
+            'phone' => '3456789012',
+            'is_primary' => true,
         ]);
 
-        // Create factory users
-        User::create([
+        // Factory Manager
+        $factory = User::create([
             'name' => 'Factory Manager',
             'email' => 'factory@ecocycle.com',
             'password' => Hash::make('password'),
-            'phone' => '4567890123',
             'role' => 'factory',
-            'status' => 'active',
+            // 'status' => 'active',
+            'email_verified_at' => now(),
+            'remember_token' => Str::random(10),
         ]);
-
-        // Create customer users
-        User::create([
-            'name' => 'Customer One',
-            'email' => 'customer1@example.com',
-            'password' => Hash::make('password'),
-            'phone' => '5678901234',
-            'role' => 'customer',
-            'status' => 'active',
+        Phone::create([
+            'user_id' => $factory->user_id,
+            'phone' => '4567890123',
+            'is_primary' => true,
         ]);
-
-        User::create([
-            'name' => 'Customer Two',
-            'email' => 'customer2@example.com',
-            'password' => Hash::make('password'),
-            'phone' => '6789012345',
-            'role' => 'customer',
-            'status' => 'active',
-        ]);
-
-        // Create more test users with factory
-        User::factory()->count(20)->create();
     }
 }
