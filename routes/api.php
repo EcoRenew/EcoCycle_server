@@ -80,7 +80,7 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware(['auth:sanctum', 'role:user'])->group(function () {
     Route::apiResource('requests', RequestController::class)->only(['store', 'show']);
     // Route::get('user/requests', [RequestController::class, 'getUserRequests']);
-    Route::get('user/dashboard', [RequestController::class, 'getUserDashboard']); // <-- added
+    Route::get('user/dashboard', [RequestController::class, 'getUserDashboard']);
 });
 
 // Requests (Admin)
