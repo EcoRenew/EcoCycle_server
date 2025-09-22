@@ -12,6 +12,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\PhoneController;
+use App\Http\Controllers\PhoneNumberController;
 // Include admin routes
 require __DIR__ . '/api_admin.php';
 
@@ -66,8 +67,8 @@ Route::middleware(['auth:sanctum', 'role:user'])->group(function () {
     Route::get('/addresses', [AddressController::class, 'index']);
     Route::post('/addresses', [AddressController::class, 'store']);
     // Phone numbers for the authenticated user
-    Route::get('/phone-numbers', [\App\Http\Controllers\PhoneNumberController::class, 'index']);
-    Route::post('/phone-numbers', [\App\Http\Controllers\PhoneNumberController::class, 'store']);
+    Route::get('/phone-numbers', [PhoneNumberController::class, 'index']);
+    Route::post('/phone-numbers', [PhoneNumberController::class, 'store']);
 });
 
 // Phones (authenticated)
@@ -102,3 +103,8 @@ Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->
 
 // Categories 
 Route::get('/categories', [RequestController::class, 'getCategories']);
+
+// CORS preflight: allow OPTIONS for any api route
+Route::options('/{any}', function () {
+    return response()->noContent();
+})->where('any', '.*');

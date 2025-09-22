@@ -29,23 +29,25 @@ class StoreRequestRequest extends FormRequest
             'pickup_address_id' => 'required|integer|exists:addresses,address_id',
             'pickup_date' => [
                 'required',
-                'date',
+                'date_format:Y-m-d',
                 'after_or_equal:today',
                 'before_or_equal:' . now()->addMonths(3)->format('Y-m-d'),
                 function ($attribute, $value, $fail) {
+                    // Parse as date-only in app timezone and compare from start of day
+                    $date = Carbon::createFromFormat('Y-m-d', $value)->startOfDay();
+
                     // Check if pickup date is not on Fridays (weekend rule)
-                    $date = Carbon::parse($value);
-                    if ($date->dayOfWeek === Carbon::FRIDAY) {
+                    if ($date->isFriday()) {
                         $fail('Pickup cannot be scheduled on Fridays.');
                     }
 
                     // Check if pickup date is not in the past
-                    if ($date->isPast()) {
+                    if ($date->lessThan(now()->startOfDay())) {
                         $fail('Pickup date cannot be in the past.');
                     }
 
-                    // Ensure at least 48 hours (2 days) advance
-                    if ($date->diffInHours(now()) < 48) {
+                    // Ensure at least 48 hours (2 days) advance from now
+                    if ($date->lessThan(now()->addDays(2)->startOfDay())) {
                         $fail('Pickup must be scheduled at least 48 hours in advance.');
                     }
                 }
