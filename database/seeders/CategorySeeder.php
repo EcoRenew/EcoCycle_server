@@ -14,8 +14,9 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
+        $imageUrl = 'https://portal.bekia-egypt.com/storage/items/xVaMZGC47cbLREMB3HzpPy9nbo6rkCttgUJ1PaMq.png';
+        $categories = ['Fabric','Accessories','Rubber','Bottles','Paper','Electronics'];
         $now = now();
-
         $categories = [
             'Fabric'      => 'https://portal.bekia-egypt.com/storage/items/xVaMZGC47cbLREMB3HzpPy9nbo6rkCttgUJ1PaMq.png',
             'Accessories' => 'https://portal.bekia-egypt.com/storage/items/xVaMZGC47cbLREMB3HzpPy9nbo6rkCttgUJ1PaMq.png',

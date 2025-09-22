@@ -58,9 +58,10 @@ Route::middleware(['auth:sanctum', EnsureEmailIsVerified::class])->group(functio
     Route::delete('/cart/{id}', [CartController::class, 'destroy']);
     Route::delete('/cart', [CartController::class, 'clear']);
     Route::post('/products/pay', [StripeController::class, 'pay']);
+    Route::post('/cart/buy-with-points', [CartController::class, 'buyWithPoints']);
+    Route::get('/materials', [RequestController::class, 'getMaterials']);
 });
 // Materials
-Route::get('/materials', [RequestController::class, 'getMaterials']);
 
 // User addresses (authenticated)
 Route::middleware(['auth:sanctum', 'role:user'])->group(function () {
