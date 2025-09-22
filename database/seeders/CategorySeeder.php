@@ -16,7 +16,8 @@ class CategorySeeder extends Seeder
     {
         $imageUrl = 'https://portal.bekia-egypt.com/storage/items/xVaMZGC47cbLREMB3HzpPy9nbo6rkCttgUJ1PaMq.png';
 
-        $categories = ['Fabric', 'Accessories', 'Rubber'];
+        $categories = ['Fabric','Accessories','Rubber','Bottles','Paper','Electronics'];
+
 
         $now = now();
 
