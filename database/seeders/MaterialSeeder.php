@@ -14,7 +14,7 @@ class MaterialSeeder extends Seeder
     public function run(): void
     {
         $imageUrl = 'https://portal.bekia-egypt.com/storage/items/xVaMZGC47cbLREMB3HzpPy9nbo6rkCttgUJ1PaMq.png';
-
+        $stock_num = 100;
         $materials = [
             [
                 'material_name' => 'Cotton',
@@ -106,7 +106,8 @@ class MaterialSeeder extends Seeder
                 'description'     => $mat['description'] ?? null,
                 'price_per_unit'  => $mat['price_per_unit'],
                 'default_unit'    => $mat['default_unit'] ?? null,
-                'units'           => json_encode($mat['units'] ?? []), // JSON column
+                'units'           => json_encode($mat['units'] ?? []),
+                'stock'           => $stock_num,
                 'image_url'       => $imageUrl,
                 'category_id'     => $mat['category_id'],
                 'points'   => $mat['points'] ?? null,
