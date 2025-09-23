@@ -22,15 +22,16 @@ class Material extends Model
         'units',          // JSON -> cast to array
         'image_url',
         'category_id',
-        'points_per_kg',
+        'points',
         'stock',
     ];
 
     protected $casts = [
         'units' => 'array',
         'price_per_unit' => 'decimal:2',
-        'points_per_kg' => 'float',
-        'stock' => 'float',    ];
+        'points' => 'float',
+        'stock' => 'float',
+    ];
 
     /**
      * Get the category that owns the material.
