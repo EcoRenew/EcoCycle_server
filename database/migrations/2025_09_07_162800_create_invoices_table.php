@@ -17,8 +17,12 @@ return new class extends Migration
             $table->decimal('total_amount', 10, 2);
             $table->unsignedBigInteger('request_id')->unique();
             $table->timestamps();
-            
+
             $table->foreign('request_id')->references('request_id')->on('requests')->onDelete('cascade');
+
+            $table->unsignedBigInteger('donation_id')->nullable();
+            $table->foreign('donation_id')->references('donation_id')->on('donations')->onDelete('set null');
+
         });
     }
 

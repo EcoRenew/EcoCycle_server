@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\PhoneController;
 use App\Http\Controllers\PhoneNumberController;
+use App\Http\Controllers\DonationController;
+
 // Include admin routes
 require __DIR__ . '/api_admin.php';
 
@@ -46,6 +48,9 @@ Route::get('users/me', [AuthController::class, 'me'])
 
 Route::post('/products/{product}/produce', [ProductController::class, 'produce']);
 Route::apiResource('products', ProductController::class);
+
+// Donation routes
+Route::apiResource('donations', DonationController::class);
 
 
 
@@ -96,16 +101,23 @@ Route::middleware(['auth:sanctum', 'role:collector'])->group(function () {
     Route::get('collector/assignments', [RequestController::class, 'getCollectorAssignments']);
     Route::post('collector/requests/{id}/status', [RequestController::class, 'updateStatus']);
 });
+
+//AI Route
 Route::post('/ai/diy-helper', [AIController::class, 'generateDIY']);
 
 //Requests(google)
 Route::get('/auth/google/redirect', [GoogleAuthController::class, 'redirect'])->name('auth.google.redirect');
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->name('auth.google.callback');
 
-// Categories 
+// Categories
 Route::get('/categories', [RequestController::class, 'getCategories']);
 
 // CORS preflight: allow OPTIONS for any api route
 Route::options('/{any}', function () {
     return response()->noContent();
 })->where('any', '.*');
+
+//Donation Route
+Route::post('/donations', [DonationController::class, 'store'])->middleware(['auth:sanctum', 'role:user']);
+// Route::post('/donations', [DonationController::class, 'store']);
+

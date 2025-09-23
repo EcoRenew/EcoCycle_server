@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+
 class Invoice extends Model
 {
     use HasFactory;
@@ -30,4 +31,13 @@ class Invoice extends Model
     {
         return $this->belongsTo(Request::class, 'request_id', 'request_id');
     }
+
+    /**
+     * Get the donation that owns the invoice.
+     */
+    public function donation(): BelongsTo
+    {
+        return $this->belongsTo(Donation::class, 'donation_id', 'donation_id');
+    }
+
 }
