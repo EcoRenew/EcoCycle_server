@@ -14,9 +14,10 @@ return new class extends Migration {
             $table->id('user_id');
             $table->string('name');
             $table->string('email')->unique();
-            $table->string('phone')->nullable();
+            // $table->string('phone')->nullable();
             $table->string('password');
             $table->enum('role', ['user', 'factory', 'collector', 'admin'])->default('user');
+            $table->integer('recycling_points')->nullable();
             $table->unsignedBigInteger('default_address_id')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();

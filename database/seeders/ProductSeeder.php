@@ -20,6 +20,7 @@ class ProductSeeder extends Seeder
                 'img' => 'https://res.cloudinary.com/dooqrobue/image/upload/v1757857523/shoes-hove-img_zc0jcu.png',
                 'hover_img' => 'https://res.cloudinary.com/dooqrobue/image/upload/v1757857067/shoes-img_wfyice.png',
                 'price' => 500,
+                'points_price' => 1000,
                 'created_at' => now(),
                 'updated_at' => now()
             ],
@@ -30,6 +31,7 @@ class ProductSeeder extends Seeder
                 'img' => 'https://res.cloudinary.com/dooqrobue/image/upload/v1757857017/dress-hover-img_dreznu.jpg',
                 'hover_img' => 'https://res.cloudinary.com/dooqrobue/image/upload/v1757856624/dress-img_xm9jsw.jpg',
                 'price' => 800,
+                'points_price' => 1600,
                 'created_at' => now(),
                 'updated_at' => now()
             ],
@@ -40,6 +42,7 @@ class ProductSeeder extends Seeder
                 'img' => 'https://res.cloudinary.com/dooqrobue/image/upload/v1757855357/bag-img_zuabv6.jpg',
                 'hover_img' => 'https://res.cloudinary.com/dooqrobue/image/upload/v1757855420/bag-hover-img_rxvake.jpg',
                 'price' => 300,
+                'points_price' => 1600,
                 'created_at' => now(),
                 'updated_at' => now()
             ],
@@ -51,6 +54,7 @@ class ProductSeeder extends Seeder
                 'img' => $product['img'],
                 'hover_img' => $product['hover_img'],
                 'price' => $product['price'],
+                'points_price' => $product['points_price'],
                 'created_at' => $product['created_at'],
                 'updated_at' => $product['updated_at']
             ]);

@@ -3,14 +3,16 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Phone;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasApiTokens;
@@ -25,7 +27,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
-        'phone',
+        'phone', 
         'password',
         'role',
         'default_address_id',
@@ -84,5 +86,46 @@ class User extends Authenticatable
     public function collectorRequests(): HasMany
     {
         return $this->hasMany(Request::class, 'collector_id', 'user_id');
+    }
+
+    public function orders(): HasMany {
+        return $this->hasMany(Order::class);
+    }
+
+    // Add phones relationship
+    public function phones(): HasMany
+    {
+        return $this->hasMany(Phone::class, 'user_id', 'user_id');
+    }
+
+    /**
+     * Convenience accessor: primary_phone returns first phone record or fallback to users.phone string.
+     */
+    public function getPrimaryPhoneAttribute()
+    {
+        $phone = $this->phones()->where('is_primary', true)->first();
+        if ($phone) {
+            return $phone->phone;
+        }
+
+        // fallback to first phone if none marked primary
+        $first = $this->phones()->orderByDesc('created_at')->first();
+        if ($first) {
+            return $first->phone;
+        }
+
+        // fallback to legacy phone column
+        return $this->attributes['phone'] ?? null;
+    }
+
+    // Ensure recycling_points is null for admin/collector and 0 for normal users when absent
+    public function getRecyclingPointsAttribute($value)
+    {
+        if (in_array($this->role, ['admin', 'collector'])) {
+            return null;
+        }
+
+        // For regular users/factory return stored value or 0 default
+        return is_null($value) ? 0 : (int) $value;
     }
 }

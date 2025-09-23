@@ -14,11 +14,14 @@ return new class extends Migration
         Schema::create('materials', function (Blueprint $table) {
             $table->id('material_id');
             $table->string('material_name');
+            $table->text('description')->nullable();
+            $table->text('image_url')->nullable();     
+            $table->string('default_unit')->nullable();   
+            $table->json('units')->nullable(); 
             $table->decimal('price_per_unit', 10, 2);
-            $table->enum('unit', ['kg', 'item'])->default('kg');
-            $table->foreignId('category_id')->constrained('categories','category_id');
+            $table->decimal('points_per_kg', 8, 2)->nullable();
+            $table->foreignId('category_id')->constrained('categories','category_id')->index();
             $table->timestamps();
-
         });
     }
 

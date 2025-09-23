@@ -49,11 +49,13 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
+        $this->call(AdminSeeder::class);
         User::factory(200)->create();
         $this->call(CategorySeeder::class);
         $this->call(MaterialSeeder::class);
         $this->call(ProductSeeder::class);
         $this->call(ProductMaterialSeeder::class);
         $this->call(TestRecyclingDataSeeder::class);
+        $this->call(UserSeeder::class);
     }
 }

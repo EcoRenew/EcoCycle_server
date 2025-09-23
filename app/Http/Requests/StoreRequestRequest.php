@@ -29,25 +29,27 @@ class StoreRequestRequest extends FormRequest
             'pickup_address_id' => 'required|integer|exists:addresses,address_id',
             'pickup_date' => [
                 'required',
-                'date',
+                'date_format:Y-m-d',
                 'after_or_equal:today',
                 'before_or_equal:' . now()->addMonths(3)->format('Y-m-d'),
                 function ($attribute, $value, $fail) {
-                    // Check if pickup date is not on weekends
-                    $date = Carbon::parse($value);
-                    if ($date->dayOfWeek === Carbon::FRIDAY) {
+                    // Parse as date-only in app timezone and compare from start of day
+                    $date = Carbon::createFromFormat('Y-m-d', $value)->startOfDay();
+
+                    // Check if pickup date is not on Fridays (weekend rule)
+                    if ($date->isFriday()) {
                         $fail('Pickup cannot be scheduled on Fridays.');
                     }
 
                     // Check if pickup date is not in the past
-                    if ($date->isPast()) {
+                    if ($date->lessThan(now()->startOfDay())) {
                         $fail('Pickup date cannot be in the past.');
                     }
 
-                    // Check if pickup date is at least 48 hours in advance
-                    // if ($date->diffInHours(now()) < 48) {
-                    //     $fail('Pickup must be scheduled at least 48 hours in advance.');
-                    // }
+                    // Ensure at least 48 hours (2 days) advance from now
+                    if ($date->lessThan(now()->addDays(2)->startOfDay())) {
+                        $fail('Pickup must be scheduled at least 48 hours in advance.');
+                    }
                 }
             ],
             'materials' => 'required|array|min:1',
@@ -65,34 +67,40 @@ class StoreRequestRequest extends FormRequest
                         return;
                     }
 
-                    // Normal user rules
-                    if ($user->type === 'user') {
-                        if ($material->unit === 'item') {
-                            if ($value < 1) {
-                                $fail('For users, minimum quantity per item is 1.');
-                            }
-                            if (!is_int($value + 0)) {
-                                $fail('For users, quantity for items must be a whole number.');
-                            }
-                        }
+                    // Normalize numeric value
+                    if (!is_numeric($value)) {
+                        $fail('Quantity must be a valid number.');
+                        return;
+                    }
 
-                        if ($material->unit === 'kg' && $value < 1) {
-                            $fail('For users, minimum quantity is 1 kg.');
+                    $qty = (float) $value;
+                    $unit = $material->default_unit ?? null; // schema uses default_unit
+
+                    // Validate against material stock (schema changed to include stock)
+                    if (isset($material->stock) && $material->stock < $qty) {
+                        $fail("Only {$material->stock} {$unit} available for '{$material->material_name}'.");
+                        return;
+                    }
+
+                    // Role-based rules: use role field on user
+                    $role = $user->role ?? null;
+
+                    // Rules for 'item' unit - must be whole numbers
+                    if ($unit === 'item') {
+                        if ($qty < 1) {
+                            $fail('Minimum quantity per item is 1.');
+                        }
+                        if (floor($qty) != $qty) {
+                            $fail('Quantity for items must be a whole number.');
                         }
                     }
 
-                    // Factory rules
-                    if ($user->type === 'factory') {
-                        if ($material->unit === 'item') {
-                            if ($value < 1) {
-                                $fail('For factories, minimum quantity per item is 1.');
-                            }
-                            if (!is_int($value + 0)) {
-                                $fail('For factories, quantity for items must be a whole number.');
-                            }
+                    // kilogram rules
+                    if ($unit === 'kg') {
+                        if ($role === 'user' && $qty < 1) {
+                            $fail('For users, minimum quantity is 1 kg.');
                         }
-
-                        if ($material->unit === 'kg' && $value < 100) {
+                        if ($role === 'factory' && $qty < 100) {
                             $fail('For factories, minimum quantity is 100 kg (0.1 ton).');
                         }
                     }
@@ -130,7 +138,6 @@ class StoreRequestRequest extends FormRequest
             'materials.*.material_id.exists' => 'One or more selected materials do not exist.',
             'materials.*.quantity.required' => 'Please specify the quantity for each material.',
             'materials.*.quantity.numeric' => 'Quantity must be a valid number.',
-
 
             // Optional fields validation messages
             'notes.string' => 'Notes must be text.',
@@ -186,8 +193,19 @@ class StoreRequestRequest extends FormRequest
 
                 if (!$materialModel) {
                     $validator->errors()->add("materials.{$index}.material_id", "Material with ID {$material['material_id']} does not exist.");
-                } elseif ($materialModel->price_per_unit <= 0) {
+                    continue;
+                }
+
+                // ensure material is available and has a positive price
+                if ($materialModel->price_per_unit <= 0) {
                     $validator->errors()->add("materials.{$index}.material_id", "Material '{$materialModel->material_name}' is currently not available for requests.");
+                    continue;
+                }
+
+                // if stock exists check requested quantity against stock
+                $reqQty = isset($material['quantity']) && is_numeric($material['quantity']) ? (float)$material['quantity'] : null;
+                if ($reqQty !== null && isset($materialModel->stock) && $materialModel->stock < $reqQty) {
+                    $validator->errors()->add("materials.{$index}.quantity", "Only {$materialModel->stock} {$materialModel->default_unit} available for '{$materialModel->material_name}'.");
                 }
             }
         }
