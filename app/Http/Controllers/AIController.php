@@ -39,7 +39,7 @@ class AIController extends Controller
             $finalPrompt .= " The image shows: " . $imageDescription;
         }
 
-        $finalPrompt .= ". Keep the response short and include a recommended YouTube video link.";
+        $finalPrompt .= ". Limit the response to approximately 50 words.";
 
         $result = $this->generateText($finalPrompt);
 
