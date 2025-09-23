@@ -27,6 +27,25 @@ class RequestController extends Controller
     {
         $query = RecyclingRequest::with(['customer', 'collector', 'pickupAddress', 'requestItems.material']);
 
+        // Search by request_id, customer name/email, collector name, or address street/city
+        if ($request->filled('search')) {
+            $search = trim($request->input('search'));
+            $query->where(function ($q) use ($search) {
+                $q->where('request_id', $search)
+                    ->orWhereHas('customer', function ($qq) use ($search) {
+                        $qq->where('name', 'like', "%$search%")
+                            ->orWhere('email', 'like', "%$search%");
+                    })
+                    ->orWhereHas('collector', function ($qq) use ($search) {
+                        $qq->where('name', 'like', "%$search%");
+                    })
+                    ->orWhereHas('pickupAddress', function ($qq) use ($search) {
+                        $qq->where('street', 'like', "%$search%")
+                            ->orWhere('city', 'like', "%$search%");
+                    });
+            });
+        }
+
         // Apply filters if provided
         if ($request->has('status')) {
             $query->where('status', $request->status);
@@ -40,7 +59,16 @@ class RequestController extends Controller
             $query->where('customer_id', $request->customer_id);
         }
 
-        $recyclingRequests = $query->orderBy('created_at', 'desc')->paginate(10);
+        // Sorting
+        $sortable = ['created_at', 'pickup_date', 'status', 'request_type'];
+        $sortBy = in_array($request->input('sort_by'), $sortable) ? $request->input('sort_by') : 'created_at';
+        $sortDir = $request->input('sort_dir') === 'asc' ? 'asc' : 'desc';
+
+        // Pagination
+        $perPage = (int) ($request->input('per_page') ?? 10);
+        $perPage = max(1, min($perPage, 100));
+
+        $recyclingRequests = $query->orderBy($sortBy, $sortDir)->paginate($perPage);
 
         return response()->json([
             'success' => true,
@@ -66,10 +94,15 @@ class RequestController extends Controller
             $recyclingRequest->save();
 
             $totalValue = 0;
+            $totalPoints = 0;
             foreach ($request->materials as $item) {
                 $material = Material::findOrFail($item['material_id']);
                 $calculatedPrice = $material->price_per_unit * $item['quantity'];
                 $totalValue += $calculatedPrice;
+
+                // Calculate points: assume quantity is in kilograms-equivalent
+                $pointsPerKg = (float) ($material->points ?? 0);
+                $totalPoints += $pointsPerKg * (float) $item['quantity'];
 
                 RequestItem::create([
                     'request_id' => $recyclingRequest->request_id,
@@ -77,6 +110,14 @@ class RequestController extends Controller
                     'quantity' => $item['quantity'],
                     'calculated_price' => $calculatedPrice
                 ]);
+            }
+
+            // Award points to user for recycling requests only
+            if ($recyclingRequest->request_type === 'Recycling' && $totalPoints > 0) {
+                $user = User::findOrFail(Auth::id());
+                $current = (int) ($user->recycling_points ?? 0);
+                $user->recycling_points = $current + (int) round($totalPoints);
+                $user->save();
             }
 
             DB::commit();
@@ -234,6 +275,7 @@ class RequestController extends Controller
                 'units'          => $m->units ?? [],
                 'image_url'      => $m->image_url,
                 'category_id'    => $m->category_id,
+                'points'  => $m->points,
                 'category'       => $m->category ? [
                     'category_id'   => $m->category->category_id,
                     'category_name' => $m->category->category_name,
@@ -267,6 +309,7 @@ class RequestController extends Controller
                         'units'          => $m->units ?? [],
                         'image_url'      => $m->image_url,
                         'category_id'    => $m->category_id,
+                        'points'  => $m->points,
                     ];
                 }),
             ];
@@ -357,5 +400,56 @@ class RequestController extends Controller
                 'upcoming_pickups' => $upcomingPickups,
             ],
         ]);
+    }
+
+    /**
+     * Admin: Show request by id with relations
+     */
+    public function adminShow($id)
+    {
+        $recyclingRequest = RecyclingRequest::with(['customer', 'collector', 'pickupAddress', 'requestItems.material', 'invoice'])
+            ->findOrFail($id);
+
+        return response()->json([
+            'success' => true,
+            'data' => $recyclingRequest
+        ]);
+    }
+
+    /**
+     * Admin: Update request fields (pickup_date, pickup_address_id, request_type)
+     */
+    public function adminUpdate(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'pickup_date' => 'sometimes|date',
+            'pickup_address_id' => 'sometimes|exists:addresses,address_id',
+            'request_type' => 'sometimes|in:Donation,Recycling',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
+        }
+
+        $recyclingRequest = RecyclingRequest::findOrFail($id);
+        $recyclingRequest->fill($validator->validated());
+        $recyclingRequest->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Request updated',
+            'data' => $recyclingRequest->load(['customer', 'collector', 'pickupAddress', 'requestItems.material', 'invoice'])
+        ]);
+    }
+
+    /**
+     * Admin: Delete request (cascades request_items and invoice)
+     */
+    public function adminDestroy($id)
+    {
+        $recyclingRequest = RecyclingRequest::findOrFail($id);
+        $recyclingRequest->delete();
+
+        return response()->json(['success' => true, 'message' => 'Request deleted']);
     }
 }

@@ -51,7 +51,6 @@ class StripeController extends Controller
                 'cancel_url' => config('stripe.frontend_url') . '/?canceled=true',
                 'metadata' => [
                     'user_id' => auth()->id(),
-                    'product_id' => $product->id,
                 ],
             ]);
             return response()->json([

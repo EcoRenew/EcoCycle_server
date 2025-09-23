@@ -5,12 +5,10 @@ namespace App\Mail;
 use App\Models\Request as RecyclingRequest;
 use App\Models\Invoice;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 class CompletionInvoice extends Mailable
 {
@@ -18,16 +16,14 @@ class CompletionInvoice extends Mailable
 
     public $request;
     public $invoice;
-    public $pdf;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(RecyclingRequest $request, Invoice $invoice, $pdf)
+    public function __construct(RecyclingRequest $request, Invoice $invoice)
     {
         $this->request = $request;
         $this->invoice = $invoice;
-        $this->pdf = $pdf;
     }
 
     /**
@@ -47,6 +43,10 @@ class CompletionInvoice extends Mailable
     {
         return new Content(
             view: 'emails.completion-invoice',
+            with: [
+                'request' => $this->request,
+                'invoice' => $this->invoice,
+            ],
         );
     }
 
@@ -58,12 +58,9 @@ class CompletionInvoice extends Mailable
     public function build()
     {
         return $this->view('emails.completion-invoice')
-                    ->with([
-                        'request' => $this->request,
-                        'invoice' => $this->invoice
-                    ])
-                    ->attachData($this->pdf->output(), 'invoice.pdf', [
-                        'mime' => 'application/pdf',
-                    ]);
+            ->with([
+                'request' => $this->request,
+                'invoice' => $this->invoice,
+            ]);
     }
 }

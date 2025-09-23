@@ -8,6 +8,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RequestController;
 use App\Http\Controllers\StripeController;
 use App\Http\Controllers\AIController;
+use App\Http\Controllers\PublicContentController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AddressController;
@@ -64,10 +65,9 @@ Route::middleware(['auth:sanctum', EnsureEmailIsVerified::class])->group(functio
     Route::delete('/cart', [CartController::class, 'clear']);
     Route::post('/products/pay', [StripeController::class, 'pay']);
     Route::post('/cart/buy-with-points', [CartController::class, 'buyWithPoints']);
-    Route::get('/materials', [RequestController::class, 'getMaterials']);
 });
 // Materials
-
+Route::get('/materials', [RequestController::class, 'getMaterials']);
 // User addresses (authenticated)
 Route::middleware(['auth:sanctum', 'role:user'])->group(function () {
     Route::get('/addresses', [AddressController::class, 'index']);
@@ -76,6 +76,11 @@ Route::middleware(['auth:sanctum', 'role:user'])->group(function () {
     Route::get('/phone-numbers', [PhoneNumberController::class, 'index']);
     Route::post('/phone-numbers', [PhoneNumberController::class, 'store']);
 });
+
+// Public FAQs and Events
+Route::get('faqs', [PublicContentController::class, 'faqs']);
+Route::get('events', [PublicContentController::class, 'events']);
+Route::post('events/register', [PublicContentController::class, 'register']);
 
 // Phones (authenticated)
 Route::middleware('auth:sanctum')->group(function () {

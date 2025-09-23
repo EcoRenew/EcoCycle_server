@@ -3,4 +3,4 @@
 use App\Http\Controllers\StripeWebHook;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/webhook/stripe', [StripeWebHook::class, 'handleWebHook']);
+Route::post('/stripe/webhook', [StripeWebHook::class, 'handleWebHook']);
