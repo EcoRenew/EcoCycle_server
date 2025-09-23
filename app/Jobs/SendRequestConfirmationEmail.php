@@ -10,6 +10,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\RequestConfirmation;
+use App\Models\EmailLog;
 
 class SendRequestConfirmationEmail implements ShouldQueue
 {
@@ -35,7 +36,28 @@ class SendRequestConfirmationEmail implements ShouldQueue
      */
     public function handle()
     {
-        Mail::to($this->request->customer->email)
-            ->send(new RequestConfirmation($this->request));
+        try {
+            $mailable = new RequestConfirmation($this->request);
+            Mail::to($this->request->customer->email)->send($mailable);
+            EmailLog::create([
+                'request_id' => $this->request->request_id,
+                'email_type' => 'request_confirmation',
+                'to_email' => $this->request->customer->email,
+                'subject' => method_exists($mailable, 'subject') ? $mailable->subject : 'Request Confirmation',
+                'status' => 'sent',
+                'sent_at' => now(),
+            ]);
+        } catch (\Throwable $e) {
+            EmailLog::create([
+                'request_id' => $this->request->request_id,
+                'email_type' => 'request_confirmation',
+                'to_email' => $this->request->customer->email,
+                'subject' => 'Request Confirmation',
+                'status' => 'failed',
+                'error_message' => $e->getMessage(),
+                'sent_at' => now(),
+            ]);
+            throw $e;
+        }
     }
 }

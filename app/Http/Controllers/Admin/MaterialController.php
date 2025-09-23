@@ -49,7 +49,7 @@ class MaterialController extends Controller
             'units.*'        => 'string',
             'image_url'      => 'nullable|url',
             'category_id'    => 'required|exists:categories,category_id',
-            'points_per_kg'  => 'nullable|numeric',
+            'points'  => 'nullable|numeric',
         ]);
 
         if ($validator->fails()) {
@@ -101,7 +101,7 @@ class MaterialController extends Controller
             'units.*'        => 'string',
             'image_url'      => 'nullable|url',
             'category_id'    => 'sometimes|required|exists:categories,category_id',
-            'points_per_kg'  => 'nullable|numeric',
+            'points'  => 'nullable|numeric',
         ]);
 
         if ($validator->fails()) {

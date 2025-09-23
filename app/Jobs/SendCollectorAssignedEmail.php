@@ -9,6 +9,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
+use App\Models\EmailLog;
 
 class SendCollectorAssignedEmail implements ShouldQueue
 {
@@ -34,8 +35,28 @@ class SendCollectorAssignedEmail implements ShouldQueue
      */
     public function handle()
     {
-        // Send email to customer about collector assignment
-        Mail::to($this->request->customer->email)
-            ->send(new \App\Mail\CollectorAssigned($this->request));
+        try {
+            $mailable = new \App\Mail\CollectorAssigned($this->request);
+            Mail::to($this->request->customer->email)->send($mailable);
+            EmailLog::create([
+                'request_id' => $this->request->request_id,
+                'email_type' => 'collector_assigned',
+                'to_email' => $this->request->customer->email,
+                'subject' => method_exists($mailable, 'subject') ? $mailable->subject : 'Collector Assigned',
+                'status' => 'sent',
+                'sent_at' => now(),
+            ]);
+        } catch (\Throwable $e) {
+            EmailLog::create([
+                'request_id' => $this->request->request_id,
+                'email_type' => 'collector_assigned',
+                'to_email' => $this->request->customer->email,
+                'subject' => 'Collector Assigned',
+                'status' => 'failed',
+                'error_message' => $e->getMessage(),
+                'sent_at' => now(),
+            ]);
+            throw $e;
+        }
     }
 }
