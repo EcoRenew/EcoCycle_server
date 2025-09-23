@@ -18,8 +18,8 @@ class AuthController extends Controller
         ]);
 
         $user = User::where('email', $request->email)
-                    ->where('role', 'admin')
-                    ->first();
+            ->where('role', 'admin')
+            ->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json([
@@ -37,6 +37,28 @@ class AuthController extends Controller
             'data' => [
                 'user' => $user,
                 'token' => $token
+            ]
+        ]);
+    }
+
+    // Return authenticated admin user info and role
+    public function me(Request $request)
+    {
+        $user = $request->user();
+        if (!$user || ($user->role ?? null) !== 'admin') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Not authenticated as admin.'
+            ], 401);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role,
             ]
         ]);
     }

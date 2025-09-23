@@ -15,10 +15,11 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'users/*','products', 'sanctum/csrf-cookie'],
+    'paths' => ['api/*', 'sanctum/csrf-cookie'],
 
     'allowed_methods' => ['*'],
 
+    // During development, allow all origins to avoid preflight mismatches (localhost vs 127.0.0.1)
     'allowed_origins' => ['*'],
 
     'allowed_origins_patterns' => [],
@@ -29,6 +30,7 @@ return [
 
     'max_age' => 0,
 
-    'supports_credentials' => true,
+    // We use Bearer tokens, not cookies; credentials header can cause CORS failures with '*'
+    'supports_credentials' => false,
 
 ];

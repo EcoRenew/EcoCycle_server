@@ -16,13 +16,21 @@ class Material extends Model
 
     protected $fillable = [
         'material_name',
+        'description',
         'price_per_unit',
-        'unit',
+        'default_unit',   // use this instead of `unit`
+        'units',          // JSON -> cast to array
+        'image_url',
         'category_id',
+        'points',
+        'stock',
     ];
 
     protected $casts = [
+        'units' => 'array',
         'price_per_unit' => 'decimal:2',
+        'points' => 'float',
+        'stock' => 'float',
     ];
 
     /**
