@@ -15,6 +15,7 @@ use App\Http\Controllers\AddressController;
 use App\Http\Controllers\PhoneController;
 use App\Http\Controllers\PhoneNumberController;
 use App\Http\Controllers\DonationController;
+use App\Http\Controllers\CommunityController;
 
 // Include admin routes
 require __DIR__ . '/api_admin.php';
