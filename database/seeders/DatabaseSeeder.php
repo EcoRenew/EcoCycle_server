@@ -57,5 +57,6 @@ class DatabaseSeeder extends Seeder
         $this->call(ProductMaterialSeeder::class);
         $this->call(TestRecyclingDataSeeder::class);
         $this->call(UserSeeder::class);
+        $this->call(CommunityPostSeeder::class);
     }
 }
