@@ -126,3 +126,8 @@ Route::options('/{any}', function () {
 Route::post('/donations', [DonationController::class, 'store'])->middleware(['auth:sanctum', 'role:user']);
 // Route::post('/donations', [DonationController::class, 'store']);
 
+//Community
+Route::get('/community/posts', [CommunityController::class, 'index']);
+Route::post('/community/posts', [CommunityController::class, 'store']);
+
+
