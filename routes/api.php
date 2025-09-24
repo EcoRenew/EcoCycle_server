@@ -15,6 +15,7 @@ use App\Http\Controllers\AddressController;
 use App\Http\Controllers\PhoneController;
 use App\Http\Controllers\PhoneNumberController;
 use App\Http\Controllers\DonationController;
+use App\Http\Controllers\CommunityController;
 
 // Include admin routes
 require __DIR__ . '/api_admin.php';
@@ -125,4 +126,9 @@ Route::options('/{any}', function () {
 //Donation Route
 Route::post('/donations', [DonationController::class, 'store'])->middleware(['auth:sanctum', 'role:user']);
 // Route::post('/donations', [DonationController::class, 'store']);
+
+//Community
+Route::get('/community/posts', [CommunityController::class, 'index']);
+Route::post('/community/posts', [CommunityController::class, 'store']);
+
 
