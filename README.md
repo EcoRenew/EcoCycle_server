@@ -63,4 +63,85 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 
 ## License
 
+
+## API Documentation
+
+### Authentication
+- `POST /users/register` — Register a new user
+- `POST /users/login` — Login user
+- `POST /users/logout` — Logout user (requires authentication)
+- `GET /users/me` — Get current user profile (requires authentication)
+
+### Products
+- `GET /products` — List products
+- `POST /products` — Create product
+- `GET /products/{id}` — Get product details
+- `PUT /products/{id}` — Update product
+- `DELETE /products/{id}` — Delete product
+- `POST /products/{product}/produce` — Mark product as produced
+- `POST /products/pay` — Pay for products (requires authentication)
+
+### Cart
+- `GET /cart` — Get cart items (requires authentication)
+- `POST /cart` — Add item to cart (requires authentication)
+- `PUT /cart/{id}` — Update cart item (requires authentication)
+- `DELETE /cart/{id}` — Remove item from cart (requires authentication)
+- `DELETE /cart` — Clear cart (requires authentication)
+- `POST /cart/buy-with-points` — Buy with points (requires authentication)
+
+### Materials
+- `GET /materials` — List available materials (requires authentication)
+
+### Addresses & Phones
+- `GET /addresses` — List user addresses (requires authentication, user role)
+- `POST /addresses` — Add address (requires authentication, user role)
+- `GET /phone-numbers` — List user phone numbers (requires authentication, user role)
+- `POST /phone-numbers` — Add phone number (requires authentication, user role)
+- `GET /phones` — List phones (requires authentication)
+- `POST /phones` — Add phone (requires authentication)
+
+### Requests
+- `POST /requests` — Create request (requires authentication, user role)
+- `GET /requests/{id}` — Get request details (requires authentication, user role)
+- `GET /user/dashboard` — Get user dashboard (requires authentication, user role)
+
+#### Admin Requests
+- `GET /admin/requests` — List all requests (requires authentication, admin role)
+- `POST /admin/requests/{id}/status` — Update request status (requires authentication, admin role)
+
+#### Collector Requests
+- `GET /collector/assignments` — List collector assignments (requires authentication, collector role)
+- `POST /collector/requests/{id}/status` — Update request status (requires authentication, collector role)
+
+### AI
+- `POST /ai/diy-helper` — Get DIY helper suggestions
+
+### Admin APIs
+- `POST /admin/login` — Admin login
+- `GET /admin/me` — Get authenticated admin info
+- `GET /admin/users` — List users
+- `POST /admin/users` — Create user
+- `GET /admin/users/{id}` — Get user details
+- `PUT /admin/users/{id}` — Update user
+- `DELETE /admin/users/{id}` — Delete user
+- `GET /admin/products` — List products
+- `POST /admin/products` — Create product
+- `GET /admin/products/{id}` — Get product details
+- `PUT /admin/products/{id}` — Update product
+- `DELETE /admin/products/{id}` — Delete product
+- `GET /admin/materials` — List materials
+- `POST /admin/materials` — Create material
+- `GET /admin/materials/{id}` — Get material details
+- `PUT /admin/materials/{id}` — Update material
+- `DELETE /admin/materials/{id}` — Delete material
+- `GET /admin/categories` — List categories
+- `POST /admin/categories` — Create category
+- `GET /admin/categories/{id}` — Get category details
+- `PUT /admin/categories/{id}` — Update category
+- `DELETE /admin/categories/{id}` — Delete category
+- `GET /admin/dashboard/stats` — Get dashboard statistics
+- `GET /admin/dashboard/activities` — Get dashboard activities
+
+> **Note:** Most endpoints require authentication and/or specific user roles. Refer to your backend code for request/response details and validation rules.
+
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
