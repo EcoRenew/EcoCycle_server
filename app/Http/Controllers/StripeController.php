@@ -2,19 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product;
+use App\Services\StripePaymentService;
 use Exception;
 use Illuminate\Http\Request;
-use Stripe\StripeClient;
+use Illuminate\Support\Facades\Log;
 
 class StripeController extends Controller
 {
-    public $stripe;
-    public function __construct()
+    protected $stripeService;
+
+    public function __construct(StripePaymentService $stripeService)
     {
-        $this->stripe = new StripeClient(
-            config('stripe.api_key.secret')
-        );
+        $this->stripeService = $stripeService;
     }
 
     public function pay(Request $request)
@@ -24,43 +23,46 @@ class StripeController extends Controller
             'products.*.id' => 'required|integer|exists:products,id',
             'products.*.quantity' => 'required|integer|min:1',
         ]);
-        $lineItems = [];
-        foreach ($validated['products'] as $item) {
-            $product = Product::find($item['id']);
-            $lineItems[] = [
-                'price_data' => [
-                    'currency' => 'EGP',
-                    'product_data' => [
-                        'name' => $product->name,
-                    ],
-                    'unit_amount' => $product->price * 100,
-                ],
-                'quantity' => $item['quantity'],
-            ];
-        }
+
         try {
-            $user = auth()->user();
-            if (!$user) {
-                return response()->json(['error' => 'User not authenticated'], 401);
-            }
-            $session = $this->stripe->checkout->sessions->create([
-                'line_items' => $lineItems,
-                'mode' => 'payment',
-                'customer_email' => $user->email,
-                'success_url' => config('stripe.frontend_url') . '/payment-success?session_id={CHECKOUT_SESSION_ID}',
-                'cancel_url' => config('stripe.frontend_url') . '/?canceled=true',
-                'metadata' => [
-                    'user_id' => auth()->id(),
-                ],
-            ]);
-            return response()->json([
-                'id' => $session->id,
-                'url' => $session->url,
-            ], 201);
+            $result = $this->stripeService->createCheckoutSession($validated, auth()->user());
+
+            return response()->json($result, 201);
         } catch (Exception $e) {
+            return response()->json(['error' => 'Payment failed: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function paymentSuccess(Request $request)
+    {
+        $validated = $request->validate([
+            'session_id' => 'required|string',
+        ]);
+
+        try {
+            $order = $this->stripeService->handlePaymentSuccess($validated['session_id']);
+
             return response()->json([
-                'error' => 'Unexpected error: ' . $e->getMessage(),
-            ], 500);
+                'message' => 'Payment confirmed successfully and cart emptied',
+                'order' => $order,
+            ]);
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Error confirming payment: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function paymentCancel(Request $request)
+    {
+        $validated = $request->validate([
+            'session_id' => 'required|string',
+        ]);
+
+        try {
+            $this->stripeService->handlePaymentCancel($validated['session_id']);
+
+            return response()->json(['message' => 'Order cancelled successfully']);
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Error cancelling order: ' . $e->getMessage()], 500);
         }
     }
 }

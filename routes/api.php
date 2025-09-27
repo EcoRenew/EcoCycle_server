@@ -65,6 +65,8 @@ Route::middleware(['auth:sanctum', EnsureEmailIsVerified::class])->group(functio
     Route::delete('/cart/{id}', [CartController::class, 'destroy']);
     Route::delete('/cart', [CartController::class, 'clear']);
     Route::post('/products/pay', [StripeController::class, 'pay']);
+    Route::post('/payment/success', [StripeController::class, 'paymentSuccess']);
+    Route::post('/payment/cancel', [StripeController::class, 'paymentCancel']);
     Route::post('/cart/buy-with-points', [CartController::class, 'buyWithPoints']);
 });
 // Materials
